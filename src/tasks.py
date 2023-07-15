@@ -59,7 +59,7 @@ usom_latest = ""
 
 @app.task
 def usom():
-    print("Starting...")
+    print("Starting USOM...")
     url = "https://www.usom.gov.tr/url-list.txt"
     response = requests.get(url, headers={"User-Agent": "Your User-Agent"}, timeout=10)
     response.raise_for_status()
@@ -76,6 +76,8 @@ def usom():
             check_url_status_and_save(url)
     finally:
         session.close()
+
+'''
 
 @app.task
 def usom_check_five_min():
@@ -97,13 +99,13 @@ def usom_check_five_min():
         usom_latest = urls[0]
         session.close()
 
-
+'''
 
 @app.task
 def phishtank():
-    print("Starting...")
+    print("Starting Phishtank...")
     url = "http://data.phishtank.com/data/online-valid.csv"
-    response = requests.get(url, headers={"User-Agent": "Your User-Agent"}, timeout=10000)
+    response = requests.get(url, headers={"User-Agent": "Your User-Agent"}, timeout=1000000)
     response.raise_for_status()
 
     content = response.text
@@ -131,10 +133,43 @@ def phishtank():
 
 @app.task
 def openphish():
-    print("TODO")
+    print("Starting Openphish...")
+    url = "https://openphish.com/feed.txt"
+    response = requests.get(url, headers={"User-Agent": "Your User-Agent"}, timeout=10)
+    response.raise_for_status()
+
+    content = response.text
+
+    urls = content.strip().split("\n")
+
+    session = Session()
+    try:
+        for url in urls:
+            check_url_status_and_save(url)
+    finally:
+        session.close()
+    print("IT IS DONEEEEEEEEEEEEEEEEEEEEEEEE")
 
 
-
-app.task
+@app.task
 def phishstats():
-    print("TODO")
+    print("Starting Phishstats...")
+    url = "https://phishstats.info/phish_score.csv"
+    response = requests.get(url, timeout=10)
+    response.raise_for_status()
+
+    csv_text = response.text
+
+    lines = csv_text.strip().split("\n")
+    reader = csv.reader(lines[8:])  # header lines
+
+    session = Session()
+    try:
+        for row in reader:
+            if len(row) >= 3:
+                url = row[2]
+                check_url_status_and_save(url)
+    finally:
+        session.close()
+
+    print("IT IS DONEEEEEEEEEEEEEEEEEEEEEEEE")
