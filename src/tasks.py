@@ -1,57 +1,22 @@
-import requests
-from celery import Celery
-from sqlalchemy import create_engine, Column, String, Boolean
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.exc import NoResultFound
 import uuid
 import csv
-
-Base = declarative_base()
-
-class URL(Base):
-    __tablename__ = "urls"
-
-    id = Column(String, primary_key=True)
-    url = Column(String)
-    is_active = Column(Boolean, default=True)
+from utilities import check_url_status_and_save, save_url
+from models import URL
+from celery_base import app
+import requests
+from utilities import Session
 
 
-engine = create_engine("postgresql://r3lixia:secret@localhost/phishing-feed-tracker-db")
-Base.metadata.create_all(bind=engine)
+# TODO:
+#postgres bağlantıları ve usom, phishtank, phishstats, openphish websitelerinin url linklerini env ye kaydet ordan kullan 
+#fastapi yazılacak
+#celery ile taskları schedule edip tekrar çalıştırma?
+#dbde tekrar olup olmadığına bakılacak query 
+#compose ile servis de çalıştırılacak --> dockerfile değişecek
 
-Session = sessionmaker(bind=engine)
+# COMPLETED:
+#models.py ve celery.py ve utilities.py 
 
-app = Celery("tasks", broker="redis://localhost:6379/0",backend="redis://localhost:6379/0")
-
-
-def check_url_status_and_save(url):
-    session = Session()
-    try:
-        if not url.startswith("http://") and not url.startswith("https://"):
-            url = f"http://{url}"
-
-        response = requests.head(url, timeout=5)
-        if response.status_code == 200:
-            active_url = URL(id=str(uuid.uuid4()), url=url, is_active=True)
-            save_url(session, active_url)
-        else:
-            inactive_url = URL(id=str(uuid.uuid4()), url=url, is_active=False)
-            save_url(session, inactive_url)
-    except requests.exceptions.Timeout:
-        print(f"{url} is inactive (Timeout)")
-        inactive_url = URL(id=str(uuid.uuid4()), url=url, is_active=False)
-        save_url(session, inactive_url)
-    except requests.exceptions.RequestException as e:
-        print(f"An error occurred while checking {url}: {str(e)}")
-        inactive_url = URL(id=str(uuid.uuid4()), url=url, is_active=False)
-        save_url(session, inactive_url)
-    session.close()
-
-
-def save_url(session, url):
-    session.add(url)
-    session.commit()
 
 
 #GLOBAL VARIABLE LATEST URL FOR USOM
@@ -68,7 +33,7 @@ def usom():
 
     urls = content.strip().split("\n")
     usom_latest = urls[0]
-    print(usom_latest)
+    #print(usom_latest)
 
     session = Session()
     try:
@@ -76,6 +41,8 @@ def usom():
             check_url_status_and_save(url)
     finally:
         session.close()
+
+    print("usom finished")
 
 '''
 
@@ -127,7 +94,8 @@ def phishtank():
     finally:
         session.close()
 
-    print("IT IS DONEEEEEEEEEEEEEEEEEEEEEEEE")
+    print("phishtank finished")
+    #ben veri tabanıma şu zamanda kaydettim timestamp 
 
 
 
@@ -148,14 +116,14 @@ def openphish():
             check_url_status_and_save(url)
     finally:
         session.close()
-    print("IT IS DONEEEEEEEEEEEEEEEEEEEEEEEE")
+    print("openphish finished")
 
 
 @app.task
 def phishstats():
     print("Starting Phishstats...")
     url = "https://phishstats.info/phish_score.csv"
-    response = requests.get(url, timeout=10)
+    response = requests.get(url, timeout=100000)
     response.raise_for_status()
 
     csv_text = response.text
@@ -163,7 +131,7 @@ def phishstats():
     lines = csv_text.strip().split("\n")
     reader = csv.reader(lines[8:])  # header lines
 
-    session = Session()
+    session = Session() #bu silinebilir
     try:
         for row in reader:
             if len(row) >= 3:
@@ -172,4 +140,4 @@ def phishstats():
     finally:
         session.close()
 
-    print("IT IS DONEEEEEEEEEEEEEEEEEEEEEEEE")
+    print("phishstats finished")

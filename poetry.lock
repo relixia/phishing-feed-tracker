@@ -387,26 +387,6 @@ yaml = ["PyYAML (>=3.10)"]
 zookeeper = ["kazoo (>=2.8.0)"]
 
 [[package]]
-name = "playwright"
-version = "1.35.0"
-description = "A high-level API to automate web browsers"
-optional = false
-python-versions = ">=3.7"
-files = [
-    {file = "playwright-1.35.0-py3-none-macosx_10_13_x86_64.whl", hash = "sha256:9eb7fdb7bb3f4e528e63641b83827531739c58a40c71d4ea0030321d3f04a742"},
-    {file = "playwright-1.35.0-py3-none-macosx_11_0_arm64.whl", hash = "sha256:444446b55bfb33ac62398f9f71a8fdb6cee1ceda3316d95db3c6419c51bca9be"},
-    {file = "playwright-1.35.0-py3-none-macosx_11_0_universal2.whl", hash = "sha256:4f486ea09940a35c08ec26f272bdcb6c1e043d400f3b9b924d541c5f4a7ed8f3"},
-    {file = "playwright-1.35.0-py3-none-manylinux1_x86_64.whl", hash = "sha256:a29cd048b3eddaf116b154328bcb8e3f3a637753cbb926ae3ef5a5e694ed2d64"},
-    {file = "playwright-1.35.0-py3-none-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:bc1d0686bdb6d7c2ce75087a1d6c7820e3de65be893f8a5ec64455613e884b39"},
-    {file = "playwright-1.35.0-py3-none-win32.whl", hash = "sha256:188481e780166eae9a2215bb3a58043ae167f7cc963282c7b7d14ba53858451c"},
-    {file = "playwright-1.35.0-py3-none-win_amd64.whl", hash = "sha256:2df7cfaaca881fd065f68e1c72a8216679a5b096f2add60c8c7c9dc909fdf7ef"},
-]
-
-[package.dependencies]
-greenlet = "2.0.2"
-pyee = "9.0.4"
-
-[[package]]
 name = "prompt-toolkit"
 version = "3.0.39"
 description = "Library for building powerful interactive command lines in Python"
@@ -441,20 +421,6 @@ files = [
     {file = "psycopg2-2.9.6-cp39-cp39-win_amd64.whl", hash = "sha256:ded2faa2e6dfb430af7713d87ab4abbfc764d8d7fb73eafe96a24155f906ebf5"},
     {file = "psycopg2-2.9.6.tar.gz", hash = "sha256:f15158418fd826831b28585e2ab48ed8df2d0d98f502a2b4fe619e7d5ca29011"},
 ]
-
-[[package]]
-name = "pyee"
-version = "9.0.4"
-description = "A port of node.js's EventEmitter to python."
-optional = false
-python-versions = "*"
-files = [
-    {file = "pyee-9.0.4-py2.py3-none-any.whl", hash = "sha256:9f066570130c554e9cc12de5a9d86f57c7ee47fece163bbdaa3e9c933cfbdfa5"},
-    {file = "pyee-9.0.4.tar.gz", hash = "sha256:2770c4928abc721f46b705e6a72b0c59480c4a69c9a83ca0b00bb994f1ea4b32"},
-]
-
-[package.dependencies]
-typing-extensions = "*"
 
 [[package]]
 name = "python-dateutil"
@@ -662,4 +628,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "3.10.9"
-content-hash = "edd58202426a0ccc0f110479d9f042780fadef24fdf9613660d910b8d80b8cfd"
+content-hash = "891308defb4286e4917f3059682122d51fac7b553c544b2952b00eaf5fe75045"

@@ -9,6 +9,7 @@ COPY . /app
 
 # Install project dependencies
 RUN pip install -r requirements.txt
+# pip install poetry, sonraki starıda run install poetry gibi gibi
 
 # Add a shell script for running multiple commands
 RUN echo '#!/bin/bash\n\
