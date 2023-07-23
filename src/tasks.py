@@ -9,13 +9,23 @@ from utilities import Session
 
 # TODO:
 #postgres bağlantıları ve usom, phishtank, phishstats, openphish websitelerinin url linklerini env ye kaydet ordan kullan 
-#fastapi yazılacak
 #celery ile taskları schedule edip tekrar çalıştırma?
-#dbde tekrar olup olmadığına bakılacak query 
 #compose ile servis de çalıştırılacak --> dockerfile değişecek
 
 # COMPLETED:
 #models.py ve celery.py ve utilities.py 
+#fastapi yazılacak
+
+
+
+@app.task
+def get_all_urls():
+    session = Session()
+    try:
+        urls = session.query(URL).all()
+        return [{"url": url.url, "is_active": url.is_active} for url in urls]
+    finally:
+        session.close()
 
 
 
@@ -32,6 +42,7 @@ def usom():
     content = response.text
 
     urls = content.strip().split("\n")
+    global usom_latest
     usom_latest = urls[0]
     #print(usom_latest)
 
@@ -54,6 +65,8 @@ def usom_check_five_min():
     response.raise_for_status()
     content = response.text
     urls = content.strip().split("\n")
+
+    global usom_latest
 
     session = Session()
     try:
@@ -95,7 +108,6 @@ def phishtank():
         session.close()
 
     print("phishtank finished")
-    #ben veri tabanıma şu zamanda kaydettim timestamp 
 
 
 
@@ -131,7 +143,7 @@ def phishstats():
     lines = csv_text.strip().split("\n")
     reader = csv.reader(lines[8:])  # header lines
 
-    session = Session() #bu silinebilir
+    session = Session()
     try:
         for row in reader:
             if len(row) >= 3:
