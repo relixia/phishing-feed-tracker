@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from tasks import usom, phishtank, openphish, phishstats, get_all_urls
+from tasks import usom_check_time_interval, phishtank_check_time_interval, openphish_check_time_interval, phishstats_check_time_interval, get_all_urls
 from celery_base import app
 
 app_fastapi = FastAPI()
@@ -10,7 +10,7 @@ phishtank_triggered = False
 openphish_triggered = False
 phishstats_triggered = False
 
-
+'''
 @app_fastapi.get("/usom")
 async def run_usom():
     global usom_triggered
@@ -50,6 +50,7 @@ async def run_phishstats():
         return {"message": "Phishstats task has been started"}
     else:
         return {"message": "Phishstats task has already been triggered"}
+'''
 
 
 @app_fastapi.get("/urls", response_model=list[dict])
@@ -59,6 +60,5 @@ async def get_urls():
 
 
 if __name__ == "__main__":
-    # Start the FastAPI server with Uvicorn
     import uvicorn
     uvicorn.run(app_fastapi, host="0.0.0.0", port=8000)
