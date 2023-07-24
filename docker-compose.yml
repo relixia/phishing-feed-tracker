@@ -11,3 +11,12 @@ services:
       - ./data:/var/lib/postgresql/data
     ports:
       - 5432:5432
+
+  app:
+    build: .  # Assuming the Dockerfile is in the current directory
+    restart: always
+    depends_on:
+      - db
+    environment:
+      REDIS_URL: redis://redis:6379/0  # Update this with the correct Redis URL
+    command: ["./run.sh"]  # Update this if your run.sh script is located in a different path

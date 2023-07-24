@@ -1,6 +1,6 @@
 import uuid
 import csv
-from utilities import check_url_status_and_save, save_url
+from utilities import check_url_status_and_save
 from models import URL, WebsiteInfo
 from celery_base import app
 import requests
@@ -42,15 +42,8 @@ def check_url_status_daily():
 
 #----------------------------------------------------USOM FUNCTIONS-------------------------------------------------------------
 
-#GLOBAL VARIABLE LATEST URL FOR USOM
-usom_latest = ""
-usom_total = 0
-
-
 @app.task
 def usom_check_time_interval():
-    global usom_latest
-    global usom_total
     print("USOM 15 MIN CHECK")
     url = "https://www.usom.gov.tr/url-list.txt"
     try:
@@ -61,21 +54,31 @@ def usom_check_time_interval():
 
         session = Session()
         try:
+            
+            website_info = session.query(WebsiteInfo).first()
+            if not website_info:
+                website_info = WebsiteInfo(
+                    openphish_latest_url="", openphish_count=0,
+                    usom_latest_url="", usom_count=0,
+                    phishtank_latest_url="", phishtank_count=0,
+                    phishstats_latest_url="", phishstats_count=0
+                )
+                session.add(website_info)
+                session.commit()
+
             for url in urls:
-                if(url != usom_latest):
-                    existing_url = session.query(URL).filter_by(url=url).first()
-                    if existing_url is None:
-                        url_entry = URL(id=str(uuid.uuid4()), url=url, is_active=True)
-                        usom_total += 1
-                        session.add(url_entry)
-                        session.commit()
+                if url != website_info.usom_latest_url:
+                    url_entry = URL(id=str(uuid.uuid4()), url=url, is_active=True)
+                    website_info.usom_count += 1
+                    session.add(url_entry)
                 else:
                     break
+            website_info.usom_latest_url = urls[0]
+            session.commit()
         finally:
+            print(f"USOM finished. Total count: {website_info.usom_count}")
             session.close()
-        usom_latest = urls[0]
-        print(f"USOM finished. Total count: {usom_total}")
-        print(usom_latest)
+
     except requests.exceptions.RequestException as e:
         print(f"USOM website is down or under maintenance: {e}")
         pass
@@ -83,15 +86,8 @@ def usom_check_time_interval():
 
 #----------------------------------------------------PHISHTANK FUNCTIONS-------------------------------------------------------------
 
-#GLOBAL VARIABLE LATEST URL FOR PHISHTANK
-phishtank_latest = ""
-phishtank_total = 0
-
-
 @app.task
 def phishtank_check_time_interval():
-    global phishtank_latest
-    global phishtank_total
     print("PHISHTANK 15 MIN CHECK")
     url = "http://data.phishtank.com/data/online-valid.csv"
     try:
@@ -107,35 +103,40 @@ def phishtank_check_time_interval():
 
         session = Session()
         try:
+            website_info = session.query(WebsiteInfo).first()
+            if not website_info:
+                website_info = WebsiteInfo(
+                    openphish_latest_url="", openphish_count=0,
+                    usom_latest_url="", usom_count=0,
+                    phishtank_latest_url="", phishtank_count=0,
+                    phishstats_latest_url="", phishstats_count=0
+                )
+                session.add(website_info)
+                session.commit()
+
             for url in urls:
-                if (url != phishtank_latest):
-                    existing_url = session.query(URL).filter_by(url=url).first()
-                    if existing_url is None:
-                        url_entry = URL(id=str(uuid.uuid4()), url=url, is_active=True)
-                        phishtank_total += 1
-                        session.add(url_entry)
-                        session.commit()
+                if url != website_info.phishtank_latest_url:
+                    url_entry = URL(id=str(uuid.uuid4()), url=url, is_active=True)
+                    website_info.phishtank_count += 1
+                    session.add(url_entry)
                 else:
                     break
+            website_info.phishtank_latest_url = urls[0]
+            session.commit()
         finally:
+            print(f"Phishtank finished. Total count: {website_info.phishtank_count}")
             session.close()
-        phishtank_latest = urls[0]
-        print(f"Phishtank finished. Total count: {phishtank_total}")
+
     except requests.exceptions.RequestException as e:
         print(f"PhishTank website is down or under maintenance: {e}")
         pass
 
 
-#----------------------------------------------------OPENPISH FUNCTIONS-------------------------------------------------------------
 
-#GLOBAL VARIABLE LATEST URL FOR OPENPHISH
-openphish_latest = ""
-openphish_total = 0
+#----------------------------------------------------OPENPISH FUNCTIONS-------------------------------------------------------------
 
 @app.task
 def openphish_check_time_interval():
-    global openphish_latest
-    global openphish_total
     print("OPENPHISH 15 MIN CHECK")
     url = "https://openphish.com/feed.txt"
     try:
@@ -147,35 +148,37 @@ def openphish_check_time_interval():
 
         session = Session()
         try:
+            website_info = session.query(WebsiteInfo).first()
+            if not website_info:
+                website_info = WebsiteInfo(
+                    openphish_latest_url="", openphish_count=0,
+                    usom_latest_url="", usom_count=0,
+                    phishtank_latest_url="", phishtank_count=0,
+                    phishstats_latest_url="", phishstats_count=0
+                )
+                session.add(website_info)
+                session.commit()
+
             for url in urls:
-                if (url != openphish_latest):
-                    existing_url = session.query(URL).filter_by(url=url).first()
-                    if existing_url is None:
-                        url_entry = URL(id=str(uuid.uuid4()), url=url, is_active=True)
-                        openphish_total += 1
-                        session.add(url_entry)
-                        session.commit()
+                if url != website_info.openphish_latest_url:
+                    url_entry = URL(id=str(uuid.uuid4()), url=url, is_active=True)
+                    website_info.openphish_count += 1
+                    session.add(url_entry)
                 else:
                     break
+            website_info.openphish_latest_url = urls[0]
+            session.commit()
         finally:
+            print(f"Openphish finished. Total count: {website_info.openphish_count}")
             session.close()
-        openphish_latest = urls[0]
-        print(f"Openphish finished. Total count: {openphish_total}")
     except requests.exceptions.RequestException as e:
         print(f"Openphish website is down or under maintenance: {e}")
         pass
 
 #----------------------------------------------------PHISHSTATS FUNCTIONS-------------------------------------------------------------
 
-#GLOBAL VARIABLE LATEST URL FOR PHISHSTATS
-phishstats_latest = ""
-phishstats_total = 0
-
-
 @app.task
 def phishstats_check_time_interval():
-    global phishstats_latest
-    global phishstats_total
     print("PHISHSTATS 15 MIN CHECK")
     url = "https://phishstats.info/phish_score.csv"
     try:
@@ -189,25 +192,31 @@ def phishstats_check_time_interval():
 
         session = Session()
         try:
+            website_info = session.query(WebsiteInfo).first()
+            if not website_info:
+                website_info = WebsiteInfo(
+                    openphish_latest_url="", openphish_count=0,
+                    usom_latest_url="", usom_count=0,
+                    phishtank_latest_url="", phishtank_count=0,
+                    phishstats_latest_url="", phishstats_count=0
+                )
+                session.add(website_info)
+                session.commit()
+
             for row in reader:
                 if len(row) >= 3:
                     url = row[2]
-                    if (url != phishstats_latest):
-                        existing_url = session.query(URL).filter_by(url=url).first()
-                        if existing_url is None:
-                            check_url_status_and_save(url)
-                            phishstats_total += 1
+                    if url != website_info.phishstats_latest_url:
+                        url_entry = URL(id=str(uuid.uuid4()), url=url, is_active=True)
+                        website_info.phishstats_count += 1
+                        session.add(url_entry)
                     else:
                         break
+            website_info.phishstats_latest_url = reader.__next__()[2]
+            session.commit()
         finally:
+            print(f"Phishstats finished. Total count: {website_info.phishstats_count}")
             session.close()
-        try:
-            phishstats_latest = reader.__next__()[2]
-        except StopIteration:
-            raise PhishstatsWebsiteDownError("Phishstats website is down or under maintenance")
-
-        print(f"Phishstats finished. Total count: {phishstats_total}")
-
     except requests.exceptions.RequestException as e:
         print(f"Phishstats website is down or under maintenance: {e}")
         pass

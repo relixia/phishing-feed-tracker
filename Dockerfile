@@ -1,11 +1,12 @@
 # Base image
 FROM python:3.10.9
 
+# Install Redis and other dependencies
+RUN apt-get update && apt-get install -y redis-server tmux
+
 # Install Poetry
 RUN curl -sSL https://install.python-poetry.org | python -
-
-# Install tmux (if not already installed)
-RUN apt-get update && apt-get install -y tmux
+ENV PATH="${PATH}:/root/.local/bin"
 
 # Set the working directory in the container
 WORKDIR /app
@@ -14,17 +15,22 @@ WORKDIR /app
 COPY pyproject.toml poetry.lock /app/
 
 # Install project dependencies with Poetry
-RUN poetry install
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-root
 
-# Copy the rest of the project files to the working directory
-COPY . /app
+# Copy the entire 'src' directory into the container
+COPY src/ /app/src/
 
 # Set the environment variables for Celery
 ENV C_FORCE_ROOT=1
 
+# Set the working directory to /app/
+WORKDIR /app/src/
+
 # Add a shell script for running multiple commands using tmux
 RUN echo '#!/bin/bash\n\
     redis-server &\n\
+    cd /app/src/\n\
     tmux new-session -d -s celery_worker "celery -A main worker --loglevel=info --include tasks"\n\
     tmux new-session -d -s celery_beat "celery -A celery_base beat -l info"\n\
     python3 main.py' > run.sh
