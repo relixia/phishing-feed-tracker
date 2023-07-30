@@ -33,6 +33,7 @@ def check_url_status_daily():
     session = Session()
     try:
         urls = session.query(URL).all()
+        #proxy will be used
         for url in urls:
             is_active = check_url_status_and_save(url.url)
             url.is_active = is_active
@@ -65,10 +66,12 @@ def usom_check_time_interval():
                 )
                 session.add(website_info)
                 session.commit()
-
+#database'de kaydedilenlere index atarak tek tek checklemek
+#eğer çok uzun url gelirse ne yapılmalı??
             for url in urls:
                 if url != website_info.usom_latest_url:
                     url_entry = URL(id=str(uuid.uuid4()), url=url, is_active=True)
+                    #bulk insert do nothing varsa insert yoksa hiçbir şey yapma 
                     website_info.usom_count += 1
                     session.add(url_entry)
                 else:

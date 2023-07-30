@@ -1,8 +1,9 @@
 from celery import Celery
 from celery.schedules import crontab
 
-app = Celery("tasks", broker="redis://localhost:6379/0", backend="redis://localhost:6379/0")
-
+app = Celery("tasks", broker="redis://phishing-feed-tracker-app-1:6379/0", backend="redis://phishing-feed-tracker-app-1:6379/0")
+#rabbitmq daha iyi olucak
+#broker rabbitmq backend redis --> celery ile çalışırken celery taskları success olunca mesaj üretiyor o mesajı temizlemezsen redis patlıyo temizlenmesi gerekiyor o yüzden yük oluyor
 app.conf.beat_schedule = {
     "run-usom-check-every-15-minutes": {
         "task": "tasks.usom_check_time_interval",

@@ -3,6 +3,8 @@ from sqlalchemy.ext.declarative import declarative_base
 
 Base = declarative_base()
 
+#unique true alanı duplication'u engellemek için
+
 class URL(Base):
     __tablename__ = "urls"
 

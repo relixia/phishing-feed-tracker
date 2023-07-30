@@ -38,3 +38,12 @@ RUN chmod +x run.sh
 
 # Run the shell script as the CMD
 CMD ["/bin/bash", "-c", "./run.sh"]
+
+#one container one service celery, beat, 
+#iki farklı db oluşturup biri local diğeri proje alanı 
+#env diye bir dizin açıp .env diye başka bir dosya bütün secretlar username'ler bunun içerisinde bu dosyayı da github'a atmıyorsun,
+#atacaksan da gitsecret gibi şeylerle encrypt edilebilir 
+
+#precommit entegre edilmeli, black, ishort, 
+#veriler üzerinde analiz yapıldı mı, hangi domain neyle alakalı, 
+#google reklam şeffaflığı, aradığımız urller 
